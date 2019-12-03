@@ -1,9 +1,15 @@
-image: Visual Studio 2015
+image: Visual Studio 2019
 
 environment:
+  NODE_PRE_GYP_GITHUB_TOKEN:
+    secure: 2nRpH/eUdEsLofTkvKMBGaLhmr05pAjKLUmHUUqjdsJ4GB2q8Mn27eVlvuc2JpOw
   matrix:
-    - nodejs_version: "10"
-    - nodejs_version: "12"
+    - nodejs_version: "13" # ABI 79
+    - nodejs_version: "12" # ABI 72
+    - nodejs_version: "11" # ABI 67
+    - nodejs_version: "10" # ABI 64
+    - nodejs_version: "9" # ABI 59
+    - nodejs_version: "8" # ABI 57
 
 platform:
   - x64
@@ -12,15 +18,27 @@ platform:
 install:
   # AppVeyor still does not support Node v12: https://github.com/appveyor/ci/issues/2921
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) $env:PLATFORM
-  - npm install
-
-test_script:
-  - node -e "console.log(`${process.version} ${process.arch} ${process.platform}`)"
+  - node --version
   - npm --version
-  - npm test
+  # Update npm
+  - npm update npm -g
+  - npm --version
+  # Install dependencies
+  - npm install node-gyp
+  - npm install -g node-pre-gyp
+  - npm install -g node-pre-gyp-github
+  # Run npm install
+  - npm install --build-from-sources
+  # Publish
+  - npx node-pre-gyp configure
+  - npx node-pre-gyp build
+  - npx node-pre-gyp package
+  - npx node-pre-gyp-github publish --release
 
 build: off
 
 branches:
   only:
     - master
+
+skip_tags: true
