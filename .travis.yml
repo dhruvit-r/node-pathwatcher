@@ -1,29 +1,39 @@
-language: node_js
+language: cpp
 
-sudo: false
-
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-4.8
-
-git:
-  depth: 10
-
-node_js:
-  - 10
-  - 12
+os:
+  - linux
+  - osx
 
 env:
-  - CC=gcc-4.8 CXX=g++-4.8
+  matrix:
+    - NODE_VERSION="13"
+    - NODE_VERSION="12"
+    - NODE_VERSION="11"
+    - NODE_VERSION="10"
+    - NODE_VERSION="9"
+    - NODE_VERSION="8"
+  global:
+    secure: P0E4/Q5nEO1LNuU5UxLTo2vcZkJVbcazZqly968JbtnUWReYOuKLG7dhbVNSwz4owqZ5jxrlS4EZ+Z7UF4JbCmJlDbF5AInw5cy43WCbPPwjv4UGgh7FGSwQAipFDAHmysfSoeqkPckm9q4WwAhkUoGVEdQJzwptt1eCDh0yVAIBCM47+oAducc+RRphvHugZz3GPRAh1Trcj4AJq/JXT72o/D86rtLSYvRq2R966puTW5bGND8R2S89CrSmOB9Kiq1EzoQQnSA3ZrP66ZqxAUU7jPzK475TO+794QSqTh+7Vh5oDeyGQbzg90t8IDYTK0ZOoFps6OPksZJ8Pmbl5i8aGGLdrtocy5TQVgBpFK3zY9Ll4/MtMmIi6XbX/78ollOUOSc5WdNU4CKASo2MqPNjAQPVQ9sEVyyGh7NzfozBoWvDFcSdKd5tdqZtf7zVgHSwEwmZqcsD1Bb+UyPYxeZjDit0dzsbG4UxhtkcB1jGhBmXmfMoKJF8UBHvFJk8DG1tAmThi1f1C52fubJ1f1otleV0IFe2nJnvhrNasnchBz3jxF2xPrm2dHT3tr7Bt8l5UrA3+ReymTNFvHw9GL8LE2wRLvrGQn8WKJoBiIk857tCNP2DFGqiIeD4D12Gt9Kqr0qyb5pVGiXfWm+JLesbuvByvBDO3LjY3SWaB+A=
 
 branches:
   only:
     - master
 
-notifications:
-  email:
-    on_success: never
-    on_failure: change
+before_install:
+  - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm
+  - source ~/.nvm/nvm.sh
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
+
+install:
+  # Install dependencies
+  - npm install node-gyp
+  - npm install -g node-pre-gyp
+  - npm install -g node-pre-gyp-github
+  # Run npm install
+  - npm install --build-from-sources
+  # Publish
+  - npx node-pre-gyp configure
+  - npx node-pre-gyp build
+  - npx node-pre-gyp package
+  - npx node-pre-gyp-github publish --release

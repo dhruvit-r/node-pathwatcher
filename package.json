@@ -6,20 +6,28 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "http://github.com/atom/node-pathwatcher/raw/master/LICENSE.md"
+      "url": "http://github.com/dhruvit-r/node-pathwatcher/raw/master/LICENSE.md"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/atom/node-pathwatcher.git"
+    "url": "https://github.com/dhruvit-r/node-pathwatcher.git"
   },
   "bugs": {
-    "url": "https://github.com/atom/node-pathwatcher/issues"
+    "url": "https://github.com/dhruvit-r/node-pathwatcher/issues"
   },
   "homepage": "http://atom.github.io/node-pathwatcher",
   "scripts": {
+    "install": "node-pre-gyp install --fallback-to-build",
     "prepublish": "grunt prepublish",
     "test": "grunt test"
+  },
+  "binary": {
+    "module_name": "pathwatcher",
+    "module_path": "./build/Release/",
+    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
+    "host": "https://github.com/dhruvit-r/node-pathwatcher/releases/download/",
+    "remote_path": "{version}"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
